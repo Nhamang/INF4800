@@ -22,6 +22,7 @@ def assignment_a():
     corpus.add_document(InMemoryDocument(0, {"body": "this is a Test"}))
     corpus.add_document(InMemoryDocument(1, {"body": "test TEST prØve"}))
     index = InMemoryInvertedIndex(corpus, ["body"], normalizer, tokenizer)
+
     for (term, expected) in zip(index.get_terms("PRøvE wtf tesT"), [[(1, 1)], [], [(0, 1), (1, 2)]]):
         print(term)
         assert term in ["prøve", "wtf", "test"]
@@ -60,6 +61,8 @@ def assignment_a():
         print(*documents, sep="\n")
         assert len(documents) == len(expected_document_ids)
         assert [d.get_document_id() for d in documents] == expected_document_ids
+        
+
 
 
 def assignment_b():

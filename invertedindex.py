@@ -7,6 +7,7 @@ from normalization import Normalizer
 from tokenization import Tokenizer
 from corpus import Corpus
 from typing import Iterable, Iterator
+from collections import Counter
 
 
 class Posting:
@@ -77,7 +78,17 @@ class InMemoryInvertedIndex(InvertedIndex):
         collection. The dictionary implementation is assumed to produce term
         identifiers in the range {0, ..., N - 1}.
         """
-        raise NotImplementedError
+        for docs in self._corpus:
+            doc_id = docs.get_document_id()
+            for f in fields:
+                terms = Counter(self.get_terms(docs.get_field(f, '')))
+                for term in terms:
+                    t_id = self._dictionary.add_if_absent(term)
+                    p1 = Posting(doc_id, terms[term])
+                    try:
+                        self._posting_lists[t_id].append(p1)
+                    except IndexError:
+                        self._posting_lists.insert(t_id, [p1])
 
     def get_terms(self, buffer: str) -> Iterable[str]:
         return [self._normalizer.normalize(t) for t in self._tokenizer.strings(self._normalizer.canonicalize(buffer))]
